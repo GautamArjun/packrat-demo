@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { CheckCircle, Calendar, Package, MapPin, Mail, Phone, User } from 'lucide-react';
+import { CheckCircle, Calendar, Package, MapPin, Mail, Phone, User, Sparkles } from 'lucide-react';
 
 interface BookingConfirmationProps {
   name: string;
@@ -10,7 +10,17 @@ interface BookingConfirmationProps {
   deliveryDate: string;
   originZip: string;
   destinationZip: string;
+  addOns?: string[];
 }
+
+const ADD_ON_NAMES: Record<string, string> = {
+  'packing-kit': 'Premium Packing Kit',
+  'protection-upgrade': 'Enhanced Protection',
+  'extended-rental': 'Extra Month Rental',
+  'loading-help': 'Loading Assistance',
+  'furniture-pads': 'Extra Furniture Pads',
+  'mattress-covers': 'Mattress & Sofa Covers'
+};
 
 export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
   name,
@@ -19,7 +29,8 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
   containerType,
   deliveryDate,
   originZip,
-  destinationZip
+  destinationZip,
+  addOns = []
 }) => {
   return (
     <motion.div
@@ -95,6 +106,24 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
           </div>
         </div>
 
+        {/* Add-ons (if any) */}
+        {addOns.length > 0 && (
+          <div className="pb-4 border-b border-gray-100">
+            <p className="text-xs uppercase tracking-wider text-gray-400 font-semibold mb-3 flex items-center gap-1">
+              <Sparkles className="w-3 h-3" />
+              Add-ons Included
+            </p>
+            <div className="space-y-2">
+              {addOns.map(addOnId => (
+                <div key={addOnId} className="flex items-center gap-2 text-sm text-gray-700">
+                  <span className="text-green-500">✓</span>
+                  <span>{ADD_ON_NAMES[addOnId] || addOnId}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* Next Steps */}
         <div className="bg-blue-50 rounded-xl p-4">
           <p className="text-xs uppercase tracking-wider text-brand-blue font-semibold mb-2">What's Next?</p>
@@ -117,4 +146,3 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
     </motion.div>
   );
 };
-

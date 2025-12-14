@@ -4,7 +4,9 @@ import React, { useRef, useEffect } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { ContactForm } from './ContactForm';
-import { Message } from '@/types/chat';
+import { InventoryEstimator } from './InventoryEstimator';
+import { AddOnSelector } from './AddOnSelector';
+import { Message, OfferData } from '@/types/chat';
 import { ChatState } from '@/hooks/useChat';
 
 interface ChatInterfaceProps {
@@ -13,8 +15,11 @@ interface ChatInterfaceProps {
   onSendMessage: (content: string) => void;
   onSelectOffer: (offerId: string) => void;
   onContactSubmit: (data: { name: string; email: string; phone: string }) => void;
+  onInventoryComplete: (recommendation: string, totalUnits: number) => void;
+  onAddOnsComplete: (addOns: string[]) => void;
   chatState: ChatState;
   availableDates?: Date[];
+  selectedOffer?: OfferData | null;
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
@@ -23,8 +28,11 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onSendMessage,
   onSelectOffer,
   onContactSubmit,
+  onInventoryComplete,
+  onAddOnsComplete,
   chatState,
-  availableDates = []
+  availableDates = [],
+  selectedOffer
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -36,13 +44,20 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
     scrollToBottom();
   }, [messages, isTyping, chatState]);
 
+  // Handle quick reply button clicks
+  const handleQuickReply = (reply: string) => {
+    onSendMessage(reply);
+  };
+
+  // Determine if we should show the text input
+  const showTextInput = !['COLLECT_CONTACT', 'ASK_INVENTORY', 'ASK_ADDONS'].includes(chatState);
+
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
       {/* Header */}
       <header className="sticky top-0 z-40 bg-white border-b border-gray-200 shadow-sm">
         <div className="max-w-3xl mx-auto px-4 h-20 flex items-center justify-between">
           <div className="flex items-center gap-4">
-            {/* Official Logo */}
             <img 
               src="/logo.png" 
               alt="1-800-PACK-RAT Logo" 
@@ -69,8 +84,28 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
             key={msg.id} 
             message={msg} 
             onSelectOffer={onSelectOffer}
+            onQuickReply={handleQuickReply}
           />
         ))}
+        
+        {/* Inventory Estimator */}
+        {chatState === 'ASK_INVENTORY' && !isTyping && (
+          <div className="w-full max-w-3xl mx-auto px-4 mb-6 flex gap-3">
+            <div className="w-10 flex-shrink-0" /> {/* Spacer for avatar alignment */}
+            <InventoryEstimator onComplete={onInventoryComplete} />
+          </div>
+        )}
+
+        {/* Add-On Selector */}
+        {chatState === 'ASK_ADDONS' && !isTyping && (
+          <div className="w-full max-w-3xl mx-auto px-4 mb-6 flex gap-3">
+            <div className="w-10 flex-shrink-0" />
+            <AddOnSelector 
+              onComplete={onAddOnsComplete} 
+              containerSize={selectedOffer?.title}
+            />
+          </div>
+        )}
         
         {/* Contact Form */}
         {chatState === 'COLLECT_CONTACT' && !isTyping && (
@@ -81,7 +116,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         
         {isTyping && (
           <div className="flex gap-3 mb-6 w-full max-w-3xl mx-auto px-4 animate-pulse">
-            <div className="w-8 h-8 rounded-full bg-brand-blue/10 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-full bg-brand-blue/10 flex items-center justify-center">
               <div className="w-4 h-4 bg-brand-blue/30 rounded-full" />
             </div>
             <div className="bg-white px-4 py-3 rounded-2xl rounded-tl-none border border-gray-100">
@@ -96,8 +131,8 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div ref={messagesEndRef} />
       </main>
 
-      {/* Input Area - hide when collecting contact */}
-      {chatState !== 'COLLECT_CONTACT' && (
+      {/* Input Area */}
+      {showTextInput && (
         <ChatInput 
           onSend={onSendMessage} 
           disabled={isTyping} 

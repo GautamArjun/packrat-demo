@@ -4,7 +4,18 @@ import { ChatInterface } from '@/components/ChatInterface';
 import { useChat } from '@/hooks/useChat';
 
 export default function Home() {
-  const { messages, isTyping, sendMessage, selectOffer, submitContact, chatState, availableDates } = useChat();
+  const { 
+    messages, 
+    isTyping, 
+    sendMessage, 
+    selectOffer, 
+    submitContact,
+    completeInventory,
+    completeAddOns,
+    chatState, 
+    availableDates,
+    selectedOffer
+  } = useChat();
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -14,8 +25,11 @@ export default function Home() {
         onSendMessage={sendMessage}
         onSelectOffer={selectOffer}
         onContactSubmit={submitContact}
+        onInventoryComplete={completeInventory}
+        onAddOnsComplete={completeAddOns}
         chatState={chatState}
         availableDates={availableDates}
+        selectedOffer={selectedOffer}
       />
     </div>
   );
