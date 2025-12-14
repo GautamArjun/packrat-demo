@@ -4,6 +4,7 @@ import { User, Package, Sparkles } from 'lucide-react';
 import { Message } from '@/types/chat';
 import { OfferCard } from './OfferCard';
 import { BookingConfirmation } from './BookingConfirmation';
+import { FacilityCard } from './FacilityCard';
 import { cn } from '@/lib/utils';
 
 interface ChatMessageProps {
@@ -50,6 +51,33 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onSelectOffer
     );
   }
 
+  // Render facility card
+  if (message.type === 'facility' && message.facilityData) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex gap-3 mb-6 w-full max-w-3xl mx-auto px-4"
+      >
+        <BotAvatar />
+        <div className="flex flex-col max-w-[80%]">
+          <div className="px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed shadow-sm bg-white border border-gray-100 text-gray-800 rounded-tl-none mb-3">
+            {message.content}
+          </div>
+          <FacilityCard 
+            facilityName={message.facilityData.name}
+            city={message.facilityData.city}
+            state={message.facilityData.state}
+            phone={message.facilityData.phone}
+          />
+          <span className="text-xs text-gray-400 mt-1.5 px-1 font-medium">
+            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+      </motion.div>
+    );
+  }
+
   // Render inventory prompt with clickable buttons
   if (message.type === 'inventory' && onQuickReply) {
     return (
@@ -61,7 +89,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onSelectOffer
         <BotAvatar />
         <div className="flex flex-col max-w-[80%]">
           <div className="px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed shadow-sm bg-white border border-gray-100 text-gray-800 rounded-tl-none">
-            <p className="mb-3">Would you like to use our <strong>Inventory Estimator</strong> for a precise container size recommendation, or just tell me roughly how many rooms you're moving?</p>
+            <p className="mb-3">{message.content}</p>
             <div className="flex flex-wrap gap-2 mt-2">
               <button 
                 onClick={() => onQuickReply('Use Inventory Estimator')}

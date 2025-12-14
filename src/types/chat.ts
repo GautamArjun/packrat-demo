@@ -20,12 +20,20 @@ export interface ConfirmationData {
   addOns?: string[];
 }
 
+export interface FacilityData {
+  name: string;
+  city: string;
+  state: string;
+  phone: string;
+}
+
 export interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  type?: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons';
+  type?: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility';
   offerData?: OfferData;
   confirmationData?: ConfirmationData;
+  facilityData?: FacilityData;
   timestamp: Date;
 }
