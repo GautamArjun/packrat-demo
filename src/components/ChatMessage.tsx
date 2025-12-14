@@ -3,6 +3,7 @@ import { motion } from 'framer-motion';
 import { User } from 'lucide-react';
 import { Message } from '@/types/chat';
 import { OfferCard } from './OfferCard';
+import { BookingConfirmation } from './BookingConfirmation';
 import { cn } from '@/lib/utils';
 
 interface ChatMessageProps {
@@ -24,12 +25,25 @@ const BotAvatar = () => (
 export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onSelectOffer }) => {
   const isBot = message.role === 'assistant';
 
+  // Render offer card
   if (message.type === 'offer' && message.offerData && onSelectOffer) {
     return (
       <div className="flex gap-3 mb-6 w-full max-w-3xl mx-auto px-4">
         <BotAvatar />
         <div className="flex-1">
           <OfferCard offer={message.offerData} onSelect={onSelectOffer} />
+        </div>
+      </div>
+    );
+  }
+
+  // Render booking confirmation card
+  if (message.type === 'confirmation' && message.confirmationData) {
+    return (
+      <div className="flex gap-3 mb-6 w-full max-w-3xl mx-auto px-4">
+        <BotAvatar />
+        <div className="flex-1">
+          <BookingConfirmation {...message.confirmationData} />
         </div>
       </div>
     );

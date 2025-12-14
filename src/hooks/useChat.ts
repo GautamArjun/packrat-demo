@@ -1,14 +1,16 @@
 import { useState, useCallback, useEffect } from 'react';
-import { Message, OfferData } from '@/types/chat';
+import { Message, OfferData, ConfirmationData } from '@/types/chat';
 
 export type ChatState = 
   | 'GREETING'
-  | 'ASK_DATE'
   | 'ASK_ORIGIN'
   | 'ASK_DESTINATION'
+  | 'CHECKING_AVAILABILITY'
+  | 'ASK_DATE'
   | 'ASK_SIZE'
   | 'OFFER_PRESENTED'
   | 'CONFIRMATION'
+  | 'COLLECT_CONTACT'
   | 'COMPLETED';
 
 interface ContainerOffer {
@@ -83,15 +85,40 @@ const CONTAINER_OPTIONS: Record<string, ContainerOffer> = {
   }
 };
 
+// Simulated availability check - returns available dates based on ZIP codes
+export function getAvailableDates(originZip: string, destZip: string): Date[] {
+  const availableDates: Date[] = [];
+  const today = new Date();
+  
+  for (let i = 3; i < 60; i++) {
+    const date = new Date(today);
+    date.setDate(today.getDate() + i);
+    
+    const dayOfWeek = date.getDay();
+    const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+    
+    if (i < 14) {
+      if (!isWeekend) {
+        availableDates.push(date);
+      }
+    } else {
+      const hash = (i * 7 + parseInt(originZip.slice(0, 2) || '10')) % 10;
+      if (hash > 1) {
+        availableDates.push(date);
+      }
+    }
+  }
+  
+  return availableDates;
+}
+
 function getContainerForRoomCount(input: string): ContainerOffer {
   const normalized = input.toLowerCase();
   
-  // Extract numbers from the input
   const numbers = normalized.match(/\d+/g);
   let roomCount = 0;
   
   if (numbers && numbers.length > 0) {
-    // If there's a range like "2-3", take the higher number
     roomCount = Math.max(...numbers.map(n => parseInt(n)));
   } else if (normalized.includes('studio')) {
     roomCount = 1;
@@ -105,7 +132,6 @@ function getContainerForRoomCount(input: string): ContainerOffer {
     roomCount = 4;
   }
 
-  // Recommend based on room count
   if (roomCount <= 1) {
     return CONTAINER_OPTIONS.small;
   } else if (roomCount <= 2) {
@@ -116,7 +142,6 @@ function getContainerForRoomCount(input: string): ContainerOffer {
 }
 
 function applyDiscount(offer: OfferData, discount: { code: string; percentage: number; description: string }): OfferData {
-  // Parse the price and apply discount
   const priceMatch = offer.price.match(/\$?([\d,]+)/);
   if (priceMatch) {
     const originalPrice = parseInt(priceMatch[1].replace(',', ''));
@@ -142,23 +167,38 @@ export const useChat = () => {
   const [chatState, setChatState] = useState<ChatState>('GREETING');
   const [userData, setUserData] = useState<Record<string, string>>({});
   const [selectedOffer, setSelectedOffer] = useState<OfferData | null>(null);
+  const [availableDates, setAvailableDates] = useState<Date[]>([]);
 
-  const addMessage = useCallback((content: string, role: 'user' | 'assistant', type: 'text' | 'offer' = 'text', offerData?: OfferData) => {
+  const addMessage = useCallback((
+    content: string, 
+    role: 'user' | 'assistant', 
+    type: 'text' | 'offer' | 'confirmation' = 'text', 
+    offerData?: OfferData,
+    confirmationData?: ConfirmationData
+  ) => {
     const newMessage: Message = {
       id: Date.now().toString(),
       role,
       content,
       type,
       offerData,
+      confirmationData,
       timestamp: new Date()
     };
     setMessages(prev => [...prev, newMessage]);
   }, []);
 
-  const simulateBotResponse = useCallback(async (response: string, nextState: ChatState, delay = 1000, offer?: OfferData) => {
+  const simulateBotResponse = useCallback(async (
+    response: string, 
+    nextState: ChatState, 
+    delay = 1000, 
+    offer?: OfferData,
+    confirmation?: ConfirmationData
+  ) => {
     setIsTyping(true);
     await new Promise(resolve => setTimeout(resolve, delay));
-    addMessage(response, 'assistant', offer ? 'offer' : 'text', offer);
+    const msgType = offer ? 'offer' : confirmation ? 'confirmation' : 'text';
+    addMessage(response, 'assistant', msgType, offer, confirmation);
     setChatState(nextState);
     setIsTyping(false);
   }, [addMessage]);
@@ -167,8 +207,8 @@ export const useChat = () => {
   useEffect(() => {
     if (messages.length === 0) {
       simulateBotResponse(
-        "Hi! I'm your PACKRAT booking assistant. I can help you get a quote and book your move in minutes. To start, when are you planning to move?", 
-        'ASK_DATE', 
+        "Hi! I'm your PACKRAT booking assistant. I can help you get a quote and book your move in minutes. To start, what is the ZIP code you're moving FROM?", 
+        'ASK_ORIGIN', 
         500
       );
     }
@@ -177,28 +217,42 @@ export const useChat = () => {
   const handleSendMessage = useCallback(async (content: string) => {
     addMessage(content, 'user');
 
-    // Simple State Machine
     switch (chatState) {
-      case 'ASK_DATE':
-        setUserData(prev => ({ ...prev, date: content }));
-        await simulateBotResponse(
-          "Got it. And what is the zip code you are moving FROM?",
-          'ASK_ORIGIN'
-        );
-        break;
-      
       case 'ASK_ORIGIN':
         setUserData(prev => ({ ...prev, origin: content }));
         await simulateBotResponse(
-          "Thanks! Where are you moving TO (zip code)?",
+          "Thanks! And what is the ZIP code you're moving TO?",
           'ASK_DESTINATION'
         );
         break;
 
       case 'ASK_DESTINATION':
-        setUserData(prev => ({ ...prev, destination: content }));
+        setUserData(prev => {
+          const newData = { ...prev, destination: content };
+          
+          const dates = getAvailableDates(prev.origin || '', content);
+          setAvailableDates(dates);
+          
+          return newData;
+        });
+        
+        setIsTyping(true);
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        addMessage("Checking availability for your route...", 'assistant');
+        
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
         await simulateBotResponse(
-          "Understood. Roughly how many rooms are you moving? (e.g., 1-2 rooms, 3-4 rooms)",
+          "Great news! We have containers available for your move. Please select your preferred delivery date from the available options:",
+          'ASK_DATE',
+          500
+        );
+        break;
+
+      case 'ASK_DATE':
+        setUserData(prev => ({ ...prev, date: content }));
+        await simulateBotResponse(
+          "Perfect! Roughly how many rooms are you moving? (e.g., 1-2 rooms, 3-4 rooms)",
           'ASK_SIZE'
         );
         break;
@@ -206,10 +260,8 @@ export const useChat = () => {
       case 'ASK_SIZE':
         setUserData(prev => ({ ...prev, size: content }));
         
-        // Get the right container based on room count
         const containerOffer = getContainerForRoomCount(content);
         
-        // Apply any available discount
         let finalOffer = containerOffer.base;
         if (containerOffer.discount) {
           finalOffer = applyDiscount(containerOffer.base, containerOffer.discount);
@@ -230,7 +282,6 @@ export const useChat = () => {
         break;
 
       case 'OFFER_PRESENTED':
-        // Handle generic questions about the offer
         await simulateBotResponse(
           "That's a great question! This container size is specifically chosen based on your room count to ensure you have enough space without overpaying. The discount has already been applied to your quote. Would you like to proceed with this option, or do you have other questions?",
           'OFFER_PRESENTED'
@@ -238,9 +289,24 @@ export const useChat = () => {
         break;
         
       case 'CONFIRMATION':
-         await simulateBotResponse(
-          "Great! I'm redirecting you to our secure checkout to finalize the details. Your discount will be automatically applied at checkout.",
-          'COMPLETED'
+        const lowerContent = content.toLowerCase();
+        if (lowerContent.includes('yes') || lowerContent.includes('proceed') || lowerContent.includes('checkout') || lowerContent.includes('ok') || lowerContent.includes('sure')) {
+          await simulateBotResponse(
+            "Perfect! Please fill out your contact information below to complete your reservation:",
+            'COLLECT_CONTACT'
+          );
+        } else {
+          await simulateBotResponse(
+            "No problem! Is there anything else you'd like to know about the offer, or would you like to make any changes?",
+            'CONFIRMATION'
+          );
+        }
+        break;
+
+      case 'COLLECT_CONTACT':
+        await simulateBotResponse(
+          "Please use the form above to enter your contact details.",
+          'COLLECT_CONTACT'
         );
         break;
 
@@ -268,11 +334,55 @@ export const useChat = () => {
     );
   }, [addMessage, simulateBotResponse, userData.date, selectedOffer]);
 
+  const handleContactSubmit = useCallback(async (contactData: { name: string; email: string; phone: string }) => {
+    setUserData(prev => ({ 
+      ...prev, 
+      name: contactData.name,
+      email: contactData.email, 
+      phone: contactData.phone 
+    }));
+    
+    addMessage(`Contact info submitted: ${contactData.name}, ${contactData.email}, ${contactData.phone}`, 'user');
+    
+    setIsTyping(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    
+    const confirmationData: ConfirmationData = {
+      name: contactData.name,
+      email: contactData.email,
+      phone: contactData.phone,
+      containerType: selectedOffer?.title || 'Container',
+      deliveryDate: userData.date || 'TBD',
+      originZip: userData.origin || '',
+      destinationZip: userData.destination || ''
+    };
+    
+    addMessage(
+      `Thank you, ${contactData.name}! Your reservation is confirmed!`,
+      'assistant',
+      'confirmation',
+      undefined,
+      confirmationData
+    );
+    setChatState('COMPLETED');
+    setIsTyping(false);
+    
+    // Follow-up message
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    await simulateBotResponse(
+      "Is there anything else I can help you with today?",
+      'COMPLETED',
+      500
+    );
+  }, [addMessage, simulateBotResponse, selectedOffer, userData]);
+
   return {
     messages,
     isTyping,
     chatState,
+    availableDates,
     sendMessage: handleSendMessage,
-    selectOffer: handleSelectOffer
+    selectOffer: handleSelectOffer,
+    submitContact: handleContactSubmit
   };
 };

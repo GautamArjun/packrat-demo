@@ -3,6 +3,7 @@
 import React, { useRef, useEffect } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
+import { ContactForm } from './ContactForm';
 import { Message } from '@/types/chat';
 import { ChatState } from '@/hooks/useChat';
 
@@ -11,7 +12,9 @@ interface ChatInterfaceProps {
   isTyping: boolean;
   onSendMessage: (content: string) => void;
   onSelectOffer: (offerId: string) => void;
+  onContactSubmit: (data: { name: string; email: string; phone: string }) => void;
   chatState: ChatState;
+  availableDates?: Date[];
 }
 
 export const ChatInterface: React.FC<ChatInterfaceProps> = ({ 
@@ -19,7 +22,9 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   isTyping, 
   onSendMessage,
   onSelectOffer,
-  chatState
+  onContactSubmit,
+  chatState,
+  availableDates = []
 }) => {
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
@@ -29,7 +34,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
 
   useEffect(() => {
     scrollToBottom();
-  }, [messages, isTyping]);
+  }, [messages, isTyping, chatState]);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -67,6 +72,13 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           />
         ))}
         
+        {/* Contact Form */}
+        {chatState === 'COLLECT_CONTACT' && !isTyping && (
+          <div className="w-full max-w-3xl mx-auto px-4 mb-6">
+            <ContactForm onSubmit={onContactSubmit} />
+          </div>
+        )}
+        
         {isTyping && (
           <div className="flex gap-3 mb-6 w-full max-w-3xl mx-auto px-4 animate-pulse">
             <div className="w-8 h-8 rounded-full bg-brand-blue/10 flex items-center justify-center">
@@ -84,12 +96,15 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
         <div ref={messagesEndRef} />
       </main>
 
-      {/* Input Area */}
-      <ChatInput 
-        onSend={onSendMessage} 
-        disabled={isTyping} 
-        inputType={chatState === 'ASK_DATE' ? 'date' : 'text'}
-      />
+      {/* Input Area - hide when collecting contact */}
+      {chatState !== 'COLLECT_CONTACT' && (
+        <ChatInput 
+          onSend={onSendMessage} 
+          disabled={isTyping} 
+          inputType={chatState === 'ASK_DATE' ? 'date' : 'text'}
+          availableDates={availableDates}
+        />
+      )}
     </div>
   );
 };
