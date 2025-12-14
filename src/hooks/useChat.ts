@@ -3,8 +3,7 @@ import { Message, OfferData, ConfirmationData } from '@/types/chat';
 
 export type ChatState = 
   | 'GREETING'
-  | 'ASK_ORIGIN'
-  | 'ASK_DESTINATION'
+  | 'ASK_ZIP'
   | 'CHECKING_AVAILABILITY'
   | 'ASK_DATE'
   | 'ASK_SIZE_METHOD'
@@ -222,8 +221,8 @@ export const useChat = () => {
   useEffect(() => {
     if (messages.length === 0) {
       simulateBotResponse(
-        "Hi! I'm your PACKRAT booking assistant. I can help you get a quote and book your move in minutes. To start, what is the ZIP code you're moving FROM?", 
-        'ASK_ORIGIN', 
+        "Hi! I'm your PACKRAT booking assistant. I can help you get a quote and book your move in minutes. Let's start by getting your move details:", 
+        'ASK_ZIP', 
         500
       );
     }
@@ -253,35 +252,6 @@ export const useChat = () => {
     addMessage(content, 'user');
 
     switch (chatState) {
-      case 'ASK_ORIGIN':
-        setUserData(prev => ({ ...prev, origin: content }));
-        await simulateBotResponse(
-          "Thanks! And what is the ZIP code you're moving TO?",
-          'ASK_DESTINATION'
-        );
-        break;
-
-      case 'ASK_DESTINATION':
-        setUserData(prev => {
-          const newData = { ...prev, destination: content };
-          const dates = getAvailableDates(prev.origin || '', content);
-          setAvailableDates(dates);
-          return newData;
-        });
-        
-        setIsTyping(true);
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        addMessage("Checking availability for your route...", 'assistant');
-        
-        await new Promise(resolve => setTimeout(resolve, 1000));
-        
-        await simulateBotResponse(
-          "Great news! We have containers available for your move. Please select your preferred delivery date from the available options:",
-          'ASK_DATE',
-          500
-        );
-        break;
-
       case 'ASK_DATE':
         setUserData(prev => ({ ...prev, date: content }));
         await simulateBotResponse(
@@ -368,6 +338,27 @@ export const useChat = () => {
         );
     }
   }, [chatState, addMessage, simulateBotResponse, presentOffer]);
+
+  const handleZipSubmit = useCallback(async (origin: string, destination: string) => {
+    addMessage(`Moving from ${origin} to ${destination}`, 'user');
+    setUserData(prev => ({ ...prev, origin, destination }));
+    
+    // Check availability
+    setIsTyping(true);
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    addMessage("Checking availability for your route...", 'assistant');
+    
+    const dates = getAvailableDates(origin, destination);
+    setAvailableDates(dates);
+    
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    
+    await simulateBotResponse(
+      "Great news! We have containers available for your move. Please select your preferred delivery date:",
+      'ASK_DATE',
+      500
+    );
+  }, [addMessage, simulateBotResponse]);
 
   const handleSelectOffer = useCallback(async (offerId: string) => {
     const offerTitle = selectedOffer?.title || 'container';
@@ -458,6 +449,7 @@ export const useChat = () => {
     sendMessage: handleSendMessage,
     selectOffer: handleSelectOffer,
     submitContact: handleContactSubmit,
+    submitZip: handleZipSubmit,
     completeInventory: handleInventoryComplete,
     completeAddOns: handleAddOnsComplete
   };

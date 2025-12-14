@@ -4,6 +4,7 @@ import React, { useRef, useEffect } from 'react';
 import { ChatMessage } from './ChatMessage';
 import { ChatInput } from './ChatInput';
 import { ContactForm } from './ContactForm';
+import { ZipCodeForm } from './ZipCodeForm';
 import { InventoryEstimator } from './InventoryEstimator';
 import { AddOnSelector } from './AddOnSelector';
 import { Message, OfferData } from '@/types/chat';
@@ -15,6 +16,7 @@ interface ChatInterfaceProps {
   onSendMessage: (content: string) => void;
   onSelectOffer: (offerId: string) => void;
   onContactSubmit: (data: { name: string; email: string; phone: string }) => void;
+  onZipSubmit: (origin: string, destination: string) => void;
   onInventoryComplete: (recommendation: string, totalUnits: number) => void;
   onAddOnsComplete: (addOns: string[]) => void;
   chatState: ChatState;
@@ -28,6 +30,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   onSendMessage,
   onSelectOffer,
   onContactSubmit,
+  onZipSubmit,
   onInventoryComplete,
   onAddOnsComplete,
   chatState,
@@ -50,7 +53,7 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
   };
 
   // Determine if we should show the text input
-  const showTextInput = !['COLLECT_CONTACT', 'ASK_INVENTORY', 'ASK_ADDONS'].includes(chatState);
+  const showTextInput = !['COLLECT_CONTACT', 'ASK_ZIP', 'ASK_INVENTORY', 'ASK_ADDONS'].includes(chatState);
 
   return (
     <div className="flex flex-col min-h-screen bg-gray-50">
@@ -88,10 +91,17 @@ export const ChatInterface: React.FC<ChatInterfaceProps> = ({
           />
         ))}
         
+        {/* ZIP Code Form */}
+        {chatState === 'ASK_ZIP' && !isTyping && (
+          <div className="w-full max-w-3xl mx-auto px-4 mb-6">
+            <ZipCodeForm onSubmit={onZipSubmit} />
+          </div>
+        )}
+
         {/* Inventory Estimator */}
         {chatState === 'ASK_INVENTORY' && !isTyping && (
           <div className="w-full max-w-3xl mx-auto px-4 mb-6 flex gap-3">
-            <div className="w-10 flex-shrink-0" /> {/* Spacer for avatar alignment */}
+            <div className="w-10 flex-shrink-0" />
             <InventoryEstimator onComplete={onInventoryComplete} />
           </div>
         )}

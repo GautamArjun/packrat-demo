@@ -10,6 +10,7 @@ export default function Home() {
     sendMessage, 
     selectOffer, 
     submitContact,
+    submitZip,
     completeInventory,
     completeAddOns,
     chatState, 
@@ -25,6 +26,7 @@ export default function Home() {
         onSendMessage={sendMessage}
         onSelectOffer={selectOffer}
         onContactSubmit={submitContact}
+        onZipSubmit={submitZip}
         onInventoryComplete={completeInventory}
         onAddOnsComplete={completeAddOns}
         chatState={chatState}
