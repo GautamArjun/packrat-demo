@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Check, Truck, Tag } from 'lucide-react';
+import { Check, Truck, Tag, Calendar } from 'lucide-react';
 import { OfferData } from '@/types/chat';
 import { cn } from '@/lib/utils';
 
@@ -14,8 +14,7 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer, onSelect, className
   // Check if this offer has a discount (features starting with 🎉)
   const hasDiscount = offer.features.some(f => f.startsWith('🎉'));
   const discountFeature = offer.features.find(f => f.startsWith('🎉'));
-  const priceFeature = offer.features.find(f => f.startsWith('Was'));
-  const regularFeatures = offer.features.filter(f => !f.startsWith('🎉') && !f.startsWith('Was'));
+  const regularFeatures = offer.features.filter(f => !f.startsWith('🎉'));
 
   return (
     <motion.div
@@ -43,23 +42,49 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer, onSelect, className
       )}
       
       <div className="p-6">
-        <div className="flex items-start justify-between mb-5">
+        <div className="flex items-start justify-between mb-4">
           <div className="p-3 bg-blue-50 rounded-xl">
             <Truck className="w-7 h-7 text-brand-blue" />
           </div>
-          <div className="text-right">
-            <span className="text-3xl font-extrabold text-brand-navy tracking-tight">{offer.price}</span>
-            {priceFeature && (
-              <p className="text-xs text-green-600 font-semibold mt-0.5">{priceFeature}</p>
-            )}
-            {!priceFeature && (
-              <p className="text-xs text-gray-500 font-medium uppercase tracking-wide mt-1">estimated total</p>
-            )}
+          <h3 className="text-xl font-bold text-gray-900">{offer.title}</h3>
+        </div>
+        
+        {/* Pricing Section */}
+        <div className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-xl p-4 mb-4 border border-gray-100">
+          <div className="space-y-3">
+            {/* First Delivery */}
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Truck className="w-4 h-4 text-brand-blue" />
+                <span className="text-sm font-medium text-gray-600">First Delivery</span>
+              </div>
+              <div className="text-right">
+                <span className="text-xl font-bold text-brand-navy">{offer.deliveryPrice}</span>
+                <span className="text-xs text-gray-500 ml-1">(+tax)</span>
+                {offer.originalDeliveryPrice && (
+                  <p className="text-xs text-gray-400 line-through">{offer.originalDeliveryPrice}</p>
+                )}
+              </div>
+            </div>
+            
+            {/* Monthly Fee */}
+            <div className="flex items-center justify-between border-t border-gray-200 pt-3">
+              <div className="flex items-center gap-2">
+                <Calendar className="w-4 h-4 text-brand-blue" />
+                <span className="text-sm font-medium text-gray-600">Monthly Recurring</span>
+              </div>
+              <div className="text-right">
+                <span className="text-xl font-bold text-brand-navy">{offer.monthlyPrice}</span>
+                <span className="text-xs text-gray-500 ml-1">/mo (+tax)</span>
+                {offer.originalMonthlyPrice && (
+                  <p className="text-xs text-gray-400 line-through">{offer.originalMonthlyPrice}/mo</p>
+                )}
+              </div>
+            </div>
           </div>
         </div>
         
-        <h3 className="text-xl font-bold text-gray-900 mb-3">{offer.title}</h3>
-        <p className="text-sm text-gray-600 mb-6 leading-relaxed border-b border-gray-100 pb-4">{offer.description}</p>
+        <p className="text-sm text-gray-600 mb-4 leading-relaxed">{offer.description}</p>
         
         <div className="bg-gray-50 rounded-xl p-4 mb-6 border border-gray-100">
           <ul className="space-y-3">

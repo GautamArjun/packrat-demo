@@ -2,7 +2,10 @@ export interface OfferData {
   id: string;
   title: string;
   price: string;
-  originalPrice?: string;
+  deliveryPrice: string;
+  monthlyPrice: string;
+  originalDeliveryPrice?: string;
+  originalMonthlyPrice?: string;
   discount?: string;
   description: string;
   features: string[];

@@ -146,7 +146,9 @@ const CONTAINER_OPTIONS: Record<string, ContainerOffer> = {
     base: {
       id: 'offer-8ft',
       title: '8-Foot Container',
-      price: '$1,650',
+      price: '$300',
+      deliveryPrice: '$300',
+      monthlyPrice: '$179',
       description: 'Perfect for studio apartments or 1-2 rooms. Compact yet spacious.',
       features: [
         'No-contact delivery & pickup',
@@ -166,7 +168,9 @@ const CONTAINER_OPTIONS: Record<string, ContainerOffer> = {
     base: {
       id: 'offer-12ft',
       title: '12-Foot Container',
-      price: '$1,950',
+      price: '$340',
+      deliveryPrice: '$340',
+      monthlyPrice: '$219',
       description: 'Ideal for 2-3 rooms. Our most versatile option.',
       features: [
         'No-contact delivery & pickup',
@@ -186,7 +190,9 @@ const CONTAINER_OPTIONS: Record<string, ContainerOffer> = {
     base: {
       id: 'offer-16ft',
       title: '16-Foot Container',
-      price: '$2,450',
+      price: '$370',
+      deliveryPrice: '$370',
+      monthlyPrice: '$249',
       description: 'Perfect for 3-4 rooms. Weather-proof, steel construction with barn-style doors.',
       features: [
         'No-contact delivery & pickup',
@@ -271,18 +277,25 @@ function getContainerBySpaceUnits(units: number): ContainerOffer {
 }
 
 function applyDiscount(offer: OfferData, discount: { code: string; percentage: number; description: string }): OfferData {
-  const priceMatch = offer.price.match(/\$?([\d,]+)/);
-  if (priceMatch) {
-    const originalPrice = parseInt(priceMatch[1].replace(',', ''));
-    const discountedPrice = Math.round(originalPrice * (1 - discount.percentage / 100));
+  const deliveryMatch = offer.deliveryPrice.match(/\$?([\d,]+)/);
+  const monthlyMatch = offer.monthlyPrice.match(/\$?([\d,]+)/);
+  
+  if (deliveryMatch && monthlyMatch) {
+    const originalDelivery = parseInt(deliveryMatch[1].replace(',', ''));
+    const originalMonthly = parseInt(monthlyMatch[1].replace(',', ''));
+    const discountedDelivery = Math.round(originalDelivery * (1 - discount.percentage / 100));
+    const discountedMonthly = Math.round(originalMonthly * (1 - discount.percentage / 100));
     
     return {
       ...offer,
-      price: `$${discountedPrice.toLocaleString()}`,
-      description: `${offer.description}`,
+      price: `$${discountedDelivery}`,
+      deliveryPrice: `$${discountedDelivery}`,
+      monthlyPrice: `$${discountedMonthly}`,
+      originalDeliveryPrice: `$${originalDelivery}`,
+      originalMonthlyPrice: `$${originalMonthly}`,
+      discount: `${discount.percentage}% OFF — Code ${discount.code}`,
       features: [
         `🎉 ${discount.percentage}% OFF — Code ${discount.code} auto-applied!`,
-        `Was $${originalPrice.toLocaleString()} → Now $${discountedPrice.toLocaleString()}`,
         ...offer.features
       ]
     };
