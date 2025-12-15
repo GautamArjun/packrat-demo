@@ -6,6 +6,7 @@ export type ChatState =
   | 'READY_TO_START'
   | 'ASK_ZIP'
   | 'CHECKING_AVAILABILITY'
+  | 'CONFIRM_DATE_PICKER'
   | 'ASK_DATE'
   | 'ASK_SIZE_METHOD'
   | 'ASK_INVENTORY'
@@ -302,7 +303,7 @@ export const useChat = () => {
   const addMessage = useCallback((
     content: string, 
     role: 'user' | 'assistant', 
-    type: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility' | 'greeting' = 'text', 
+    type: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility' | 'greeting' | 'datePrompt' = 'text', 
     offerData?: OfferData,
     confirmationData?: ConfirmationData,
     facilityData?: FacilityData
@@ -326,7 +327,7 @@ export const useChat = () => {
     delay = 1000, 
     offer?: OfferData,
     confirmation?: ConfirmationData,
-    msgType?: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility' | 'greeting',
+    msgType?: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility' | 'greeting' | 'datePrompt',
     facilityData?: FacilityData
   ) => {
     setIsTyping(true);
@@ -393,6 +394,14 @@ export const useChat = () => {
             600
           );
         }
+        break;
+
+      case 'CONFIRM_DATE_PICKER':
+        await simulateBotResponse(
+          "Here's the calendar — available dates are highlighted. Just click on the date that works best for you:",
+          'ASK_DATE',
+          500
+        );
         break;
 
       case 'ASK_DATE':
@@ -520,9 +529,12 @@ What would you prefer?`,
     await new Promise(resolve => setTimeout(resolve, 800));
     
     await simulateBotResponse(
-      "Now let's pick a date! I found several available slots for container delivery. Go ahead and select the one that works best for your schedule:",
-      'ASK_DATE',
-      500
+      `I found **${dates.length} available delivery dates** over the next few weeks. 📅\n\nWhenever you're ready, I'll show you the calendar to pick the date that works best for your schedule.`,
+      'CONFIRM_DATE_PICKER',
+      500,
+      undefined,
+      undefined,
+      'datePrompt'
     );
   }, [addMessage, simulateBotResponse]);
 
