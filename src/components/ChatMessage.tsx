@@ -13,19 +13,44 @@ interface ChatMessageProps {
   onQuickReply?: (reply: string) => void;
 }
 
-// Helper function to parse simple markdown (bold and line breaks) into React elements
+// Helper function to parse simple markdown (bold, links, and line breaks) into React elements
 const parseMarkdown = (text: string): React.ReactNode => {
   // Split by newlines first
   const lines = text.split('\n');
   
   return lines.map((line, lineIndex) => {
-    // Parse bold text (**text**)
-    const parts = line.split(/(\*\*.*?\*\*)/g);
-    const parsedLine = parts.map((part, partIndex) => {
-      if (part.startsWith('**') && part.endsWith('**')) {
-        return <strong key={partIndex} className="font-semibold">{part.slice(2, -2)}</strong>;
+    // First parse links [text](url), then bold text (**text**)
+    const linkPattern = /(\[.*?\]\(.*?\))/g;
+    const boldPattern = /(\*\*.*?\*\*)/g;
+    
+    // Split by links first
+    const linkParts = line.split(linkPattern);
+    
+    const parsedLine = linkParts.map((part, partIndex) => {
+      // Check if this is a link
+      const linkMatch = part.match(/\[(.*?)\]\((.*?)\)/);
+      if (linkMatch) {
+        return (
+          <a 
+            key={`link-${partIndex}`}
+            href={linkMatch[2]} 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="text-brand-blue hover:text-brand-navy underline font-medium"
+          >
+            {linkMatch[1]}
+          </a>
+        );
       }
-      return part;
+      
+      // Parse bold text within non-link parts
+      const boldParts = part.split(boldPattern);
+      return boldParts.map((boldPart, boldIndex) => {
+        if (boldPart.startsWith('**') && boldPart.endsWith('**')) {
+          return <strong key={`bold-${partIndex}-${boldIndex}`} className="font-semibold">{boldPart.slice(2, -2)}</strong>;
+        }
+        return boldPart;
+      });
     });
     
     return (

@@ -634,7 +634,7 @@ What would you prefer?`,
     
     await new Promise(resolve => setTimeout(resolve, 1200));
     await simulateBotResponse(
-      `It was my pleasure helping you today, ${contactData.name}! Our team at the ${facility?.name || 'local facility'} in ${facility?.city || 'your area'} will reach out if they need anything.\n\nIf you have any questions before your move date, don't hesitate to reach out — we're always here to help. Good luck with your move! 🏠✨`,
+      `It was my pleasure helping you today, ${contactData.name}! Our team at the ${facility?.name || 'local facility'} in ${facility?.city || 'your area'} will reach out if they need anything.\n\nIf you have any questions before your move date, don't hesitate to reach out — we're always here to help. Good luck with your move! 🏠✨\n\n📹 **Pro Tip:** Want to make the most of your container space? Check out our helpful video guide on how to load your container like a pro: [Watch Loading Tips Video](https://www.youtube.com/watch?v=2uWE1Xa4vxc&t=81s)`,
       'COMPLETED',
       500
     );
