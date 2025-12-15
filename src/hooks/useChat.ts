@@ -18,6 +18,7 @@ export type ChatState =
   | "ASK_SIZE"
   | "CONFIRM_QUOTE"
   | "OFFER_PRESENTED"
+  | "CONFIRM_ADDONS"
   | "ASK_ADDONS"
   | "CONFIRMATION"
   | "COLLECT_CONTACT"
@@ -673,7 +674,8 @@ export const useChat = () => {
         | "facility"
         | "greeting"
         | "datePrompt"
-        | "quotePrompt" = "text",
+        | "quotePrompt"
+        | "addonsPrompt" = "text",
       offerData?: OfferData,
       confirmationData?: ConfirmationData,
       facilityData?: FacilityData
@@ -709,7 +711,8 @@ export const useChat = () => {
         | "facility"
         | "greeting"
         | "datePrompt"
-        | "quotePrompt",
+        | "quotePrompt"
+        | "addonsPrompt",
       facilityData?: FacilityData
     ) => {
       setIsTyping(true);
@@ -890,6 +893,36 @@ What would you prefer?`,
           );
           break;
 
+        case "CONFIRM_ADDONS":
+          const addonsChoice = content.toLowerCase();
+          if (
+            addonsChoice.includes("skip") ||
+            addonsChoice.includes("no") ||
+            addonsChoice.includes("later")
+          ) {
+            // Skip add-ons and go directly to confirmation
+            setSelectedAddOns([]);
+            await simulateBotResponse(
+              `No problem! Sometimes you just need the container and that's totally fine. 😊\n\nSo here's the summary: Your **${
+                selectedOffer?.title
+              }** is ready to go for **${
+                userData.date || "your selected date"
+              }**, with your discount already applied.\n\nShall we finalize your reservation?`,
+              "CONFIRMATION"
+            );
+          } else {
+            // Show add-ons
+            await simulateBotResponse(
+              "Great! Here are some popular add-ons that customers find really helpful. Take your time and select any that you'd like — no pressure! 😊",
+              "ASK_ADDONS",
+              800,
+              undefined,
+              undefined,
+              "addons"
+            );
+          }
+          break;
+
         case "ASK_ADDONS":
           await simulateBotResponse(
             "Take your time looking through the options above! These are some of our most popular add-ons that customers find really helpful. No pressure though — just pick what makes sense for your move, or skip if you're all set. 😊",
@@ -939,14 +972,14 @@ What would you prefer?`,
           );
       }
     },
-    [chatState, addMessage, simulateBotResponse, presentOffer, showQuote]
+    [chatState, addMessage, simulateBotResponse, presentOffer, showQuote, selectedOffer, userData.date]
   );
 
   const handleZipSubmit = useCallback(
     async (origin: string, destination: string) => {
       addMessage(`Moving from ${origin} to ${destination}`, "user");
       setUserData((prev) => ({ ...prev, origin, destination }));
-      
+
       // Immediately change state to prevent ZIP form from reappearing
       setChatState("CHECKING_AVAILABILITY");
 
@@ -1000,12 +1033,12 @@ What would you prefer?`,
       addMessage(`I'd like to select the ${offerTitle}`, "user");
 
       await simulateBotResponse(
-        `Excellent choice! The ${offerTitle} is perfect for your move. 🎉\n\nBefore we wrap up, I wanted to show you a few popular add-ons that other customers moving similar distances have found really helpful. No obligation — just want to make sure you have everything you need!`,
-        "ASK_ADDONS",
+        `Excellent choice! The ${offerTitle} is perfect for your move. 🎉\n\nBefore we wrap up, I wanted to show you a few popular add-ons that other customers moving similar distances have found really helpful. Would you like to take a look?`,
+        "CONFIRM_ADDONS",
         1000,
         undefined,
         undefined,
-        "addons"
+        "addonsPrompt"
       );
     },
     [addMessage, simulateBotResponse, selectedOffer]
