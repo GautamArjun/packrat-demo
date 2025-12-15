@@ -972,7 +972,15 @@ What would you prefer?`,
           );
       }
     },
-    [chatState, addMessage, simulateBotResponse, presentOffer, showQuote, selectedOffer, userData.date]
+    [
+      chatState,
+      addMessage,
+      simulateBotResponse,
+      presentOffer,
+      showQuote,
+      selectedOffer,
+      userData.date,
+    ]
   );
 
   const handleZipSubmit = useCallback(
