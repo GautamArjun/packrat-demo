@@ -10,6 +10,7 @@ export interface OfferData {
   description: string;
   features: string[];
   recommended?: boolean;
+  quoteId?: string;
 }
 
 export interface ConfirmationData {
@@ -34,7 +35,7 @@ export interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  type?: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility' | 'greeting' | 'datePrompt';
+  type?: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility' | 'greeting' | 'datePrompt' | 'quotePrompt';
   offerData?: OfferData;
   confirmationData?: ConfirmationData;
   facilityData?: FacilityData;

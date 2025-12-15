@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Check, Truck, Tag, Calendar } from 'lucide-react';
+import { Check, Truck, Tag, Calendar, FileText } from 'lucide-react';
 import { OfferData } from '@/types/chat';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +27,17 @@ export const OfferCard: React.FC<OfferCardProps> = ({ offer, onSelect, className
         className
       )}
     >
+      {/* Quote ID Banner */}
+      {offer.quoteId && (
+        <div className="bg-brand-navy text-white px-4 py-2 flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            <FileText className="w-4 h-4" />
+            <span className="text-xs font-medium uppercase tracking-wide">Quote ID</span>
+          </div>
+          <span className="font-mono font-bold text-sm">{offer.quoteId}</span>
+        </div>
+      )}
+      
       {offer.recommended && (
         <div className="bg-brand-red text-white text-xs font-bold px-3 py-1.5 text-center uppercase tracking-wider">
           Best Value for Your Move

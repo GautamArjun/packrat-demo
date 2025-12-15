@@ -1,6 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
-import { User, Package, Sparkles, Rocket, HelpCircle, Calendar } from 'lucide-react';
+import { User, Package, Sparkles, Rocket, HelpCircle, Calendar, FileText } from 'lucide-react';
 import { Message } from '@/types/chat';
 import { OfferCard } from './OfferCard';
 import { BookingConfirmation } from './BookingConfirmation';
@@ -183,6 +183,36 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onSelectOffer
               >
                 <Calendar className="w-4 h-4" />
                 Show me the calendar
+              </button>
+            </div>
+          </div>
+          <span className="text-xs text-gray-400 mt-1.5 px-1 font-medium">
+            {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        </div>
+      </motion.div>
+    );
+  }
+
+  // Render quote prompt with quick reply button
+  if (message.type === 'quotePrompt' && onQuickReply) {
+    return (
+      <motion.div
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="flex gap-3 mb-6 w-full max-w-3xl mx-auto px-4"
+      >
+        <BotAvatar />
+        <div className="flex flex-col max-w-[80%]">
+          <div className="px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed shadow-sm bg-gradient-to-br from-green-50 to-emerald-50 border border-green-100 text-gray-800 rounded-tl-none">
+            <p className="mb-3">{parseMarkdown(message.content)}</p>
+            <div className="flex flex-wrap gap-2 mt-2">
+              <button 
+                onClick={() => onQuickReply("Yes, show me my quote!")}
+                className="inline-flex items-center gap-1.5 px-4 py-2 bg-brand-blue text-white rounded-full text-sm font-medium hover:bg-brand-navy transition-colors shadow-sm"
+              >
+                <FileText className="w-4 h-4" />
+                Yes, show me my quote!
               </button>
             </div>
           </div>
