@@ -1135,6 +1135,7 @@ What would you prefer?`,
         originZip: userData.origin || "",
         destinationZip: userData.destination || "",
         addOns: selectedAddOns,
+        quoteId: quoteId,
       };
 
       addMessage(

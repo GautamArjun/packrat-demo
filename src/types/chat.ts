@@ -22,6 +22,7 @@ export interface ConfirmationData {
   originZip: string;
   destinationZip: string;
   addOns?: string[];
+  quoteId?: string;
 }
 
 export interface FacilityData {

@@ -11,6 +11,7 @@ interface BookingConfirmationProps {
   originZip: string;
   destinationZip: string;
   addOns?: string[];
+  quoteId?: string;
 }
 
 const ADD_ON_NAMES: Record<string, string> = {
@@ -30,7 +31,8 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
   deliveryDate,
   originZip,
   destinationZip,
-  addOns = []
+  addOns = [],
+  quoteId
 }) => {
   return (
     <motion.div
@@ -47,7 +49,7 @@ export const BookingConfirmation: React.FC<BookingConfirmationProps> = ({
           </div>
           <div>
             <h3 className="font-bold text-lg">Reservation Confirmed!</h3>
-            <p className="text-green-100 text-sm">Booking #{Date.now().toString().slice(-8)}</p>
+            <p className="text-green-100 text-sm">Quote ID: {quoteId || 'N/A'}</p>
           </div>
         </div>
       </div>
