@@ -1063,7 +1063,7 @@ What would you prefer?`,
         size: recommendation,
         inventoryUnits: totalUnits.toString(),
       }));
-      
+
       // Immediately change state to prevent inventory form from reappearing
       setChatState("CONFIRM_QUOTE");
 
