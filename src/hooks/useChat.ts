@@ -655,7 +655,10 @@ export const useChat = () => {
   const [selectedAddOns, setSelectedAddOns] = useState<string[]>([]);
   const [facility, setFacility] = useState<Facility | null>(null);
   const [quoteId, setQuoteId] = useState<string>("");
-  const [pendingOffer, setPendingOffer] = useState<{ offer: OfferData; description: string } | null>(null);
+  const [pendingOffer, setPendingOffer] = useState<{
+    offer: OfferData;
+    description: string;
+  } | null>(null);
 
   const addMessage = useCallback(
     (
@@ -757,10 +760,10 @@ export const useChat = () => {
       // Generate Quote ID
       const newQuoteId = generateQuoteId();
       setQuoteId(newQuoteId);
-      
+
       // Add quoteId to the offer
       finalOffer = { ...finalOffer, quoteId: newQuoteId };
-      
+
       // Store the offer for later
       setPendingOffer({ offer: finalOffer, description: sizeDescription });
       setSelectedOffer(finalOffer);
@@ -777,12 +780,12 @@ export const useChat = () => {
     },
     [simulateBotResponse]
   );
-  
+
   const showQuote = useCallback(async () => {
     if (!pendingOffer) return;
-    
+
     const { offer, description } = pendingOffer;
-    
+
     await simulateBotResponse(
       `Here's your personalized quote for your ${description} move:`,
       "OFFER_PRESENTED",
@@ -1106,7 +1109,7 @@ What would you prefer?`,
           contactData.name
         }! Our team at the ${facility?.name || "local facility"} in ${
           facility?.city || "your area"
-        } will reach out if they need anything.\n\nYour **Quote ID is ${quoteId}** — please save this for your records.\n\n📞 If you have any questions before your move date, call us at **1-800-PACK-RAT (1-800-722-5728)** and mention your Quote ID for quick assistance.\n\nGood luck with your move! 🏠✨\n\n📹 **Pro Tip:** Want to make the most of your container space? Check out our helpful video guide on how to load your container like a pro: [Watch Loading Tips Video](https://www.youtube.com/watch?v=2uWE1Xa4vxc&t=81s)`,
+        } will reach out if they need anything.\n\nYour **Quote ID is ${quoteId}** — please save this for your records.\n\n📞 If you have any questions before your move date, call us at **1-800-PACK-RAT (1-800-722-5728)** and mention your Quote ID for quick assistance.\n\nGood luck with your move! 🏠✨\n\n📹 **Pro Tip:** Want to make the most of your container space? Check out our helpful video guide on how to load your container like a pro: [Watch Loading Tips Video](https://www.youtube.com/watch?v=re5ay2BTGz4)`,
         "COMPLETED",
         500
       );
