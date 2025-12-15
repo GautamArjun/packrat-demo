@@ -31,7 +31,7 @@ export interface Message {
   id: string;
   role: 'user' | 'assistant' | 'system';
   content: string;
-  type?: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility';
+  type?: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility' | 'greeting';
   offerData?: OfferData;
   confirmationData?: ConfirmationData;
   facilityData?: FacilityData;

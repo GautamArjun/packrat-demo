@@ -3,6 +3,7 @@ import { Message, OfferData, ConfirmationData, FacilityData } from '@/types/chat
 
 export type ChatState = 
   | 'GREETING'
+  | 'READY_TO_START'
   | 'ASK_ZIP'
   | 'CHECKING_AVAILABILITY'
   | 'ASK_DATE'
@@ -301,7 +302,7 @@ export const useChat = () => {
   const addMessage = useCallback((
     content: string, 
     role: 'user' | 'assistant', 
-    type: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility' = 'text', 
+    type: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility' | 'greeting' = 'text', 
     offerData?: OfferData,
     confirmationData?: ConfirmationData,
     facilityData?: FacilityData
@@ -325,7 +326,7 @@ export const useChat = () => {
     delay = 1000, 
     offer?: OfferData,
     confirmation?: ConfirmationData,
-    msgType?: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility',
+    msgType?: 'text' | 'offer' | 'confirmation' | 'inventory' | 'addons' | 'facility' | 'greeting',
     facilityData?: FacilityData
   ) => {
     setIsTyping(true);
@@ -340,9 +341,12 @@ export const useChat = () => {
   useEffect(() => {
     if (messages.length === 0) {
       simulateBotResponse(
-        "Hi there! 👋 Welcome to 1-800-PACK-RAT. I'm here to help make your move as smooth and stress-free as possible. Whether you're moving across town or across the country, I've got you covered!\n\nLet's get started — just enter your move details below and I'll find the best options for you:", 
-        'ASK_ZIP', 
-        500
+        "Hi there! 👋 Welcome to 1-800-PACK-RAT. I'm here to help make your move as smooth and stress-free as possible. Whether you're moving across town or across the country, I've got you covered!\n\nAre you ready to get started?", 
+        'READY_TO_START', 
+        500,
+        undefined,
+        undefined,
+        'greeting'
       );
     }
   }, [messages.length, simulateBotResponse]);
@@ -372,6 +376,25 @@ export const useChat = () => {
     addMessage(content, 'user');
 
     switch (chatState) {
+      case 'READY_TO_START':
+        if (content.toLowerCase().includes('more') || content.toLowerCase().includes('tell')) {
+          await simulateBotResponse(
+            "Of course! Here's what makes 1-800-PACK-RAT special:\n\n📦 **Flexible Storage** — Keep your container as long as you need\n🚚 **Door-to-Door Service** — We deliver and pick up at your convenience\n🔒 **Secure & Protected** — Weather-resistant steel containers with content protection\n💰 **Transparent Pricing** — No hidden fees, and I can often find you discounts!\n\nWhenever you're ready, just let me know and we'll get started! 🎉",
+            'READY_TO_START',
+            800,
+            undefined,
+            undefined,
+            'greeting'
+          );
+        } else {
+          await simulateBotResponse(
+            "Wonderful! Let's find the best moving solution for you. 🚚\n\nFirst, I'll need to know where you're moving from and to — just enter both ZIP codes below:",
+            'ASK_ZIP',
+            600
+          );
+        }
+        break;
+
       case 'ASK_DATE':
         setUserData(prev => ({ ...prev, date: content }));
         await simulateBotResponse(
