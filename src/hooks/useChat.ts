@@ -413,7 +413,7 @@ export const useChat = () => {
         await simulateBotResponse(
           "Here's the calendar — available dates are highlighted. Just click on the date that works best for you:",
           'ASK_DATE',
-          500
+          1500
         );
         break;
 
@@ -518,18 +518,19 @@ What would you prefer?`,
     const assignedFacility = getFacilityForZip(origin);
     setFacility(assignedFacility);
     
-    // Check availability
+    // Check availability - give time for "thinking"
     setIsTyping(true);
-    await new Promise(resolve => setTimeout(resolve, 1500));
+    await new Promise(resolve => setTimeout(resolve, 2000));
     addMessage(`Thanks! Let me check availability for your route... 🔍`, 'assistant');
     
     const dates = getAvailableDates(origin, destination);
     setAvailableDates(dates);
     
-    await new Promise(resolve => setTimeout(resolve, 1200));
+    // Simulate checking - longer pause for realism
+    await new Promise(resolve => setTimeout(resolve, 2500));
     setIsTyping(false);
     
-    // Show facility card
+    // Show facility card - give time to read
     addMessage(
       `Wonderful news! ✅ I found availability for your move. Your booking will be handled by our local team who knows your area well:`,
       'assistant',
@@ -539,12 +540,13 @@ What would you prefer?`,
       assignedFacility
     );
     
-    await new Promise(resolve => setTimeout(resolve, 800));
+    // Longer pause to let user read facility info
+    await new Promise(resolve => setTimeout(resolve, 2500));
     
     await simulateBotResponse(
       `I found **${dates.length} available delivery dates** over the next few weeks. 📅\n\nWhenever you're ready, I'll show you the calendar to pick the date that works best for your schedule.`,
       'CONFIRM_DATE_PICKER',
-      500,
+      1200,
       undefined,
       undefined,
       'datePrompt'
