@@ -946,6 +946,9 @@ What would you prefer?`,
     async (origin: string, destination: string) => {
       addMessage(`Moving from ${origin} to ${destination}`, "user");
       setUserData((prev) => ({ ...prev, origin, destination }));
+      
+      // Immediately change state to prevent ZIP form from reappearing
+      setChatState("CHECKING_AVAILABILITY");
 
       // Get facility information
       const assignedFacility = getFacilityForZip(origin);
