@@ -13,6 +13,30 @@ interface ChatMessageProps {
   onQuickReply?: (reply: string) => void;
 }
 
+// Helper function to parse simple markdown (bold and line breaks) into React elements
+const parseMarkdown = (text: string): React.ReactNode => {
+  // Split by newlines first
+  const lines = text.split('\n');
+  
+  return lines.map((line, lineIndex) => {
+    // Parse bold text (**text**)
+    const parts = line.split(/(\*\*.*?\*\*)/g);
+    const parsedLine = parts.map((part, partIndex) => {
+      if (part.startsWith('**') && part.endsWith('**')) {
+        return <strong key={partIndex} className="font-semibold">{part.slice(2, -2)}</strong>;
+      }
+      return part;
+    });
+    
+    return (
+      <React.Fragment key={lineIndex}>
+        {parsedLine}
+        {lineIndex < lines.length - 1 && <br />}
+      </React.Fragment>
+    );
+  });
+};
+
 // Reusable Bot Avatar component for consistency
 const BotAvatar = () => (
   <div className="flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center border shadow-sm bg-white border-gray-200">
@@ -62,7 +86,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onSelectOffer
         <BotAvatar />
         <div className="flex flex-col max-w-[80%]">
           <div className="px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed shadow-sm bg-white border border-gray-100 text-gray-800 rounded-tl-none mb-3">
-            {message.content}
+            {parseMarkdown(message.content)}
           </div>
           <FacilityCard 
             facilityName={message.facilityData.name}
@@ -89,7 +113,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onSelectOffer
         <BotAvatar />
         <div className="flex flex-col max-w-[80%]">
           <div className="px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed shadow-sm bg-white border border-gray-100 text-gray-800 rounded-tl-none">
-            <p className="mb-3">{message.content}</p>
+            <p className="mb-3">{parseMarkdown(message.content)}</p>
             <div className="flex flex-wrap gap-2 mt-2">
               <button 
                 onClick={() => onQuickReply('Use Inventory Estimator')}
@@ -129,7 +153,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onSelectOffer
               <Sparkles className="w-4 h-4 text-purple-500" />
               <span className="font-semibold text-purple-700">Special Offers Available!</span>
             </div>
-            <p>{message.content}</p>
+            <p>{parseMarkdown(message.content)}</p>
           </div>
           <span className="text-xs text-gray-400 mt-1.5 px-1 font-medium">
             {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
@@ -164,7 +188,7 @@ export const ChatMessage: React.FC<ChatMessageProps> = ({ message, onSelectOffer
           "px-5 py-3.5 rounded-2xl text-[15px] leading-relaxed shadow-sm",
           isBot ? "bg-white border border-gray-100 text-gray-800 rounded-tl-none" : "bg-brand-blue text-white rounded-tr-none shadow-md"
         )}>
-          {message.content}
+          {parseMarkdown(message.content)}
         </div>
         <span className="text-xs text-gray-400 mt-1.5 px-1 font-medium">
           {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}

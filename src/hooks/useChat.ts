@@ -375,7 +375,15 @@ export const useChat = () => {
       case 'ASK_DATE':
         setUserData(prev => ({ ...prev, date: content }));
         await simulateBotResponse(
-          `${content} — great choice! 📅 That gives us plenty of time to make sure everything is ready for you.\n\nNow, to recommend the perfect container size, I have two options for you: I can walk you through our **Inventory Estimator** (which takes about a minute and gives you the most accurate recommendation), or you can just tell me roughly how many rooms you're moving. What would you prefer?`,
+          `${content} — great choice! 📅 That gives us plenty of time to make sure everything is ready for you.
+
+Now, to recommend the perfect container size, I have two options:
+
+• **Inventory Estimator** — takes about a minute and gives you the most accurate recommendation
+
+• **Quick estimate** — just tell me roughly how many rooms you're moving
+
+What would you prefer?`,
           'ASK_SIZE_METHOD',
           800,
           undefined,
