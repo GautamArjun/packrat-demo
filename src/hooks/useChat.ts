@@ -739,7 +739,7 @@ export const useChat = () => {
       simulateBotResponse(
         "Hi there! 👋 Welcome to 1-800-PACK-RAT. I'm here to help make your move as smooth and stress-free as possible. Whether you're moving across town or across the country, I've got you covered!\n\nAre you ready to get started?",
         "READY_TO_START",
-        500,
+        1500,
         undefined,
         undefined,
         "greeting"
@@ -775,7 +775,7 @@ export const useChat = () => {
       await simulateBotResponse(
         `🎯 Based on your ${sizeDescription} move, I've found the best deal for you!${discountMessage}\n\nYour personalized quote is ready. Would you like to see it?`,
         "CONFIRM_QUOTE",
-        1500,
+        4000,
         undefined,
         undefined,
         "quotePrompt"
@@ -792,7 +792,7 @@ export const useChat = () => {
     await simulateBotResponse(
       `Here's your personalized quote for your ${description} move:`,
       "OFFER_PRESENTED",
-      1200,
+      3500,
       offer
     );
   }, [pendingOffer, simulateBotResponse]);
@@ -810,7 +810,7 @@ export const useChat = () => {
             await simulateBotResponse(
               "Of course! Here's what makes 1-800-PACK-RAT special:\n\n📦 **Flexible Storage** — Keep your container as long as you need\n🚚 **Door-to-Door Service** — We deliver and pick up at your convenience\n🔒 **Secure & Protected** — Weather-resistant steel containers with content protection\n💰 **Transparent Pricing** — No hidden fees, and I can often find you discounts!\n\nWhenever you're ready, just let me know and we'll get started! 🎉",
               "READY_TO_START",
-              800,
+              3000,
               undefined,
               undefined,
               "greeting"
@@ -819,7 +819,7 @@ export const useChat = () => {
             await simulateBotResponse(
               "Wonderful! Let's find the best moving solution for you. 🚚\n\nFirst, I'll need to know where you're moving from and to — just enter both ZIP codes below:",
               "ASK_ZIP",
-              600
+              2500
             );
           }
           break;
@@ -828,7 +828,7 @@ export const useChat = () => {
           await simulateBotResponse(
             "Here's the calendar — available dates are highlighted. Just click on the date that works best for you:",
             "ASK_DATE",
-            1500
+            3000
           );
           break;
 
@@ -849,7 +849,7 @@ Now, to recommend the perfect container size, I have two options:
 
 What would you prefer?`,
             "ASK_SIZE_METHOD",
-            800,
+            3500,
             undefined,
             undefined,
             "inventory"
@@ -865,7 +865,7 @@ What would you prefer?`,
             lowerContent.includes("exact")
           ) {
             setIsTyping(true);
-            await new Promise((resolve) => setTimeout(resolve, 800));
+            await new Promise((resolve) => setTimeout(resolve, 3000));
             addMessage(
               "Absolutely! I love when customers use this — it really helps ensure you get exactly the right size. Take your time going through each room. If you're not sure about something, it's always better to include it! 😊",
               "assistant"
@@ -875,7 +875,8 @@ What would you prefer?`,
           } else {
             await simulateBotResponse(
               "No problem at all! Just give me a rough idea — how many rooms worth of stuff are you moving? For example: studio, 1-2 rooms, 3-4 rooms, or more?",
-              "ASK_SIZE"
+              "ASK_SIZE",
+              3000
             );
           }
           break;
@@ -889,7 +890,8 @@ What would you prefer?`,
         case "OFFER_PRESENTED":
           await simulateBotResponse(
             "I totally understand wanting to know more! This container size was specifically chosen based on what you told me about your move. It gives you enough room to pack comfortably without paying for space you won't use.\n\nThe best part? If you find you need more space, we can always adjust. Would you like to go ahead with this option, or do you have any other questions? I'm happy to help!",
-            "OFFER_PRESENTED"
+            "OFFER_PRESENTED",
+            3500
           );
           break;
 
@@ -908,14 +910,15 @@ What would you prefer?`,
               }** is ready to go for **${
                 userData.date || "your selected date"
               }**, with your discount already applied.\n\nShall we finalize your reservation?`,
-              "CONFIRMATION"
+              "CONFIRMATION",
+              3500
             );
           } else {
             // Show add-ons
             await simulateBotResponse(
               "Great! Here are some popular add-ons that customers find really helpful. Take your time and select any that you'd like — no pressure! 😊",
               "ASK_ADDONS",
-              800,
+              3000,
               undefined,
               undefined,
               "addons"
@@ -926,7 +929,8 @@ What would you prefer?`,
         case "ASK_ADDONS":
           await simulateBotResponse(
             "Take your time looking through the options above! These are some of our most popular add-ons that customers find really helpful. No pressure though — just pick what makes sense for your move, or skip if you're all set. 😊",
-            "ASK_ADDONS"
+            "ASK_ADDONS",
+            3000
           );
           break;
 
@@ -941,12 +945,14 @@ What would you prefer?`,
           ) {
             await simulateBotResponse(
               "Wonderful! 🎉 You're almost there! Just need a few details to finalize your reservation. Don't worry — your information is secure and we'll only use it to coordinate your move and send you important updates.",
-              "COLLECT_CONTACT"
+              "COLLECT_CONTACT",
+              3500
             );
           } else {
             await simulateBotResponse(
               "Of course! I want you to feel 100% confident about your choice. What questions can I answer for you? I'm here to help with anything — pricing, container features, scheduling flexibility, you name it!",
-              "CONFIRMATION"
+              "CONFIRMATION",
+              3000
             );
           }
           break;
@@ -954,21 +960,24 @@ What would you prefer?`,
         case "COLLECT_CONTACT":
           await simulateBotResponse(
             "Just fill out the form above whenever you're ready! I'll wait right here. 😊",
-            "COLLECT_CONTACT"
+            "COLLECT_CONTACT",
+            2500
           );
           break;
 
         case "COMPLETED":
           await simulateBotResponse(
             "Of course! I'm still here if you need anything else. Whether it's questions about your upcoming move, making changes to your reservation, or anything else — just let me know!",
-            "COMPLETED"
+            "COMPLETED",
+            3000
           );
           break;
 
         default:
           await simulateBotResponse(
             "I'm sorry, I didn't quite catch that. Could you tell me a bit more about what you're looking for? I'm here to help!",
-            chatState
+            chatState,
+            2500
           );
       }
     },
@@ -997,7 +1006,7 @@ What would you prefer?`,
 
       // Check availability - give time for "thinking"
       setIsTyping(true);
-      await new Promise((resolve) => setTimeout(resolve, 2000));
+      await new Promise((resolve) => setTimeout(resolve, 3000));
       addMessage(
         `Thanks! Let me check availability for your route... 🔍`,
         "assistant"
@@ -1007,7 +1016,7 @@ What would you prefer?`,
       setAvailableDates(dates);
 
       // Simulate checking - longer pause for realism
-      await new Promise((resolve) => setTimeout(resolve, 2500));
+      await new Promise((resolve) => setTimeout(resolve, 4000));
       setIsTyping(false);
 
       // Show facility card - give time to read
@@ -1021,12 +1030,12 @@ What would you prefer?`,
       );
 
       // Longer pause to let user read facility info
-      await new Promise((resolve) => setTimeout(resolve, 2500));
+      await new Promise((resolve) => setTimeout(resolve, 4000));
 
       await simulateBotResponse(
         `I found **${dates.length} available delivery dates** over the next few weeks. 📅\n\nWhenever you're ready, I'll show you the calendar to pick the date that works best for your schedule.`,
         "CONFIRM_DATE_PICKER",
-        1200,
+        3500,
         undefined,
         undefined,
         "datePrompt"
@@ -1043,7 +1052,7 @@ What would you prefer?`,
       await simulateBotResponse(
         `Excellent choice! The ${offerTitle} is perfect for your move. 🎉\n\nBefore we wrap up, I wanted to show you a few popular add-ons that other customers moving similar distances have found really helpful. Would you like to take a look?`,
         "CONFIRM_ADDONS",
-        1000,
+        3500,
         undefined,
         undefined,
         "addonsPrompt"
@@ -1068,14 +1077,14 @@ What would you prefer?`,
       setChatState("CONFIRM_QUOTE");
 
       setIsTyping(true);
-      await new Promise((resolve) => setTimeout(resolve, 800));
+      await new Promise((resolve) => setTimeout(resolve, 3500));
       addMessage(
         "Thanks for taking the time to go through that! Based on your inventory, I can now give you a really accurate recommendation. 👍",
         "assistant"
       );
       setIsTyping(false);
 
-      await new Promise((resolve) => setTimeout(resolve, 500));
+      await new Promise((resolve) => setTimeout(resolve, 2000));
 
       const containerOffer = getContainerBySpaceUnits(totalUnits);
       await presentOffer(recommendation, containerOffer);
@@ -1098,7 +1107,8 @@ What would you prefer?`,
           }** is reserved for **${
             userData.date || "your selected date"
           }**, and I've noted your add-ons. Your discount has been pre-applied to give you the best price.\n\nReady to lock this in? Just say the word and we'll get you set up!`,
-          "CONFIRMATION"
+          "CONFIRMATION",
+          3500
         );
       } else {
         addMessage("No add-ons needed", "user");
@@ -1108,7 +1118,8 @@ What would you prefer?`,
           }** is ready to go for **${
             userData.date || "your selected date"
           }**, with your discount already applied.\n\nShall we finalize your reservation?`,
-          "CONFIRMATION"
+          "CONFIRMATION",
+          3500
         );
       }
     },
@@ -1127,7 +1138,7 @@ What would you prefer?`,
       addMessage(`${contactData.name}, ${contactData.email}`, "user");
 
       setIsTyping(true);
-      await new Promise((resolve) => setTimeout(resolve, 1500));
+      await new Promise((resolve) => setTimeout(resolve, 3500));
 
       const confirmationData: ConfirmationData = {
         name: contactData.name,
@@ -1151,7 +1162,7 @@ What would you prefer?`,
       setChatState("COMPLETED");
       setIsTyping(false);
 
-      await new Promise((resolve) => setTimeout(resolve, 1200));
+      await new Promise((resolve) => setTimeout(resolve, 4000));
       await simulateBotResponse(
         `It was my pleasure helping you today, ${
           contactData.name
@@ -1159,7 +1170,7 @@ What would you prefer?`,
           facility?.city || "your area"
         } will reach out if they need anything.\n\nYour **Quote ID is ${quoteId}** — please save this for your records.\n\n📞 If you have any questions before your move date, call us at **1-800-PACK-RAT (1-800-722-5728)** and mention your Quote ID for quick assistance.\n\nGood luck with your move! 🏠✨\n\n📹 **Pro Tip:** Want to make the most of your container space? Check out our helpful video guide on how to load your container like a pro: [Watch Loading Tips Video](https://www.youtube.com/watch?v=re5ay2BTGz4)`,
         "COMPLETED",
-        500
+        3000
       );
     },
     [
